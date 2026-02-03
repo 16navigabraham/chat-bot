@@ -1,689 +1,310 @@
-# Smart WhatsApp Chatbot
-## University Project Presentation
+# Chat with a User's WhatsApp Number Programmatically
+## Group Project Presentation
 
 ---
 
 # SLIDE 1: Title Slide
 
-**Smart WhatsApp Chatbot**
-*100% Local Intelligence - No AI APIs Required*
+**Chat with a User's WhatsApp Number Programmatically**
 
 - **Course:** [Your Course Name]
-- **Student Name:** [Your Name]
-- **Student ID:** [Your ID]
+- **Group Members:** [Names]
+- **Student IDs:** [IDs]
 - **Date:** [Presentation Date]
 - **Supervisor:** [Supervisor Name]
 
-🤖 Built with Python, Flask & Twilio
-
 ---
 
-# SLIDE 2: Introduction / Problem Statement
+# SLIDE 2: Introduction
 
-## The Problem
+## Project Topic
 
-- Traditional chatbots rely on **expensive AI APIs** (OpenAI, Google AI, etc.)
-- API costs can be **$0.01 - $0.06 per request** 💸
-- **Rate limits** restrict usage (requests per minute/day)
-- **Privacy concerns** - user data sent to third-party servers
-- **Internet dependency** - fails without connectivity
-- Not suitable for **students/small projects** with limited budgets
+Our group was assigned the topic **"Chat with a user's WhatsApp number programmatically."** The goal was to build a system that can send and receive WhatsApp messages through code, without manually using the WhatsApp application.
 
-## Our Solution
+## Our Approach
 
-✅ A **fully functional chatbot** that runs **100% locally**
-✅ **Zero API costs** - completely free to run
-✅ **No rate limits** - unlimited conversations
-✅ **Privacy-first** - all processing happens on your machine
+To implement this, we built a chatbot — a program that listens for incoming WhatsApp messages and automatically sends back relevant responses. We used 's WhatsApp API as the bridge between our code and the WhatsApp platform, and Python with Flask to handle the message processing logic.
 
 ---
 
 # SLIDE 3: Project Objectives
 
-## Main Objectives
-
-1. **Design** a WhatsApp chatbot without external AI dependencies
-2. **Implement** intelligent response generation using NLP techniques
-3. **Integrate** with WhatsApp via Twilio's messaging API
-4. **Create** a real-time monitoring dashboard
-5. **Demonstrate** practical chatbot functionality for real-world use
-
-## Scope
-
-| In Scope ✅ | Out of Scope ❌ |
-|------------|----------------|
-| Text-based conversations | Voice messages |
-| Pattern matching & NLP | Machine learning training |
-| WhatsApp integration | Other platforms (Telegram, etc.) |
-| Web dashboard | Mobile app |
-| Math calculations | Complex computations |
+1. Understand how to programmatically interact with WhatsApp using an API
+2. Build a server that can receive and respond to WhatsApp messages automatically
+3. Implement a response engine that generates meaningful replies
+4. Create a web dashboard to monitor chatbot activity
 
 ---
 
-# SLIDE 4: Literature Review / Background
+# SLIDE 4: Background
 
-## What is a Chatbot?
+## What Does "Programmatic WhatsApp Chat" Mean?
 
-> "A chatbot is a software application designed to simulate human conversation through text or voice interactions."
+Instead of typing messages manually in WhatsApp, our system uses code to:
+- **Receive** messages sent by a user to a designated WhatsApp number
+- **Process** the message content on our server
+- **Send back** an automated response to that user's WhatsApp number
 
-## Types of Chatbots
+This is made possible through **Twilio**, a cloud platform that provides APIs for messaging services including WhatsApp.
 
-| Type | Description | Example |
-|------|-------------|---------|
-| **Rule-Based** | Uses predefined patterns and responses | Our Project ✅ |
-| **AI-Powered** | Uses machine learning models | ChatGPT, Gemini |
-| **Hybrid** | Combines both approaches | Customer service bots |
+## How Twilio Works
 
-## Why Rule-Based?
-
-- ✅ **Predictable** responses
-- ✅ **Fast** processing (no API latency)
-- ✅ **Cost-effective** (no API fees)
-- ✅ **Easy to customize** and maintain
-- ✅ **Works offline** after setup
+1. We register a WhatsApp number (sandbox) on Twilio
+2. Twilio forwards any message sent to that number to our server via a **webhook**
+3. Our server processes the message and returns a response
+4. Twilio delivers the response back to the user on WhatsApp
 
 ---
 
 # SLIDE 5: System Architecture
 
-## High-Level Architecture
-
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   User's    │     │   Twilio    │     │   Flask     │
-│  WhatsApp   │◄───►│   Cloud     │◄───►│   Server    │
-│    App      │     │  (Webhook)  │     │  (Python)   │
-└─────────────┘     └─────────────┘     └─────────────┘
-                                              │
-                                              ▼
-                                    ┌─────────────────┐
-                                    │  Smart Engine   │
-                                    ├─────────────────┤
-                                    │ • Knowledge Base│
-                                    │ • Pattern Match │
-                                    │ • Fuzzy Match   │
-                                    │ • Math Parser   │
-                                    │ • Cache System  │
-                                    └─────────────────┘
++-------------+     +-------------+     +-------------+
+|   User's    |     |   Twilio    |     |   Flask     |
+|  WhatsApp   |<--->|   Cloud     |<--->|   Server    |
+|    App      |     |  (Webhook)  |     |  (Python)   |
++-------------+     +-------------+     +-------------+
+                                              |
+                                              v
+                                    +-----------------+
+                                    |  Response Engine |
+                                    +-----------------+
+                                    | Knowledge Base   |
+                                    | Pattern Matching |
+                                    | Fuzzy Matching   |
+                                    | Math Parser      |
+                                    | Cache System     |
+                                    +-----------------+
 ```
 
-## Data Flow
+## Message Flow
 
-1. User sends message on WhatsApp
-2. Twilio receives and forwards to our webhook
-3. Flask server processes the message
-4. Smart Engine generates response
-5. Response sent back through Twilio
-6. User receives reply on WhatsApp
+1. A user sends a message to our WhatsApp number
+2. Twilio receives it and sends an HTTP POST request to our Flask server
+3. Our server extracts the message text and the sender's phone number
+4. The response engine determines an appropriate reply
+5. The reply is sent back through Twilio to the user's WhatsApp
 
 ---
 
 # SLIDE 6: Technologies Used
 
-## Tech Stack
-
-| Technology | Purpose | Why We Chose It |
-|------------|---------|-----------------|
-| **Python 3.8+** | Main programming language | Easy to learn, extensive libraries |
-| **Flask** | Web framework | Lightweight, perfect for APIs |
-| **Twilio** | WhatsApp integration | Industry standard, free sandbox |
-| **HTML/CSS/JS** | Dashboard UI | Universal web technologies |
-| **difflib** | Fuzzy matching | Built-in Python library |
-| **hashlib** | Response caching | Built-in, fast hashing |
-
-## Why These Technologies?
-
-- **Python** - Most popular language for chatbots and NLP
-- **Flask** - Simple, minimal boilerplate code
-- **Twilio** - Reliable, well-documented API
-- All technologies are **free** and **open-source**
+| Technology | Role in the Project |
+|------------|---------------------|
+| Python 3.8+ | Main programming language for server and logic |
+| Flask | Web framework that receives webhook requests from Twilio |
+| Twilio API | Connects our code to WhatsApp messaging |
+| HTML/CSS/JS | Frontend for the monitoring dashboard |
+| difflib | Python library used for fuzzy string matching |
+| hashlib | Python library used for caching responses |
 
 ---
 
-# SLIDE 7: Core Features
+# SLIDE 7: How the Response Engine Works
 
-## 🧠 Intelligent Response System
+Since our task was to chat programmatically, we needed the system to generate sensible replies. We implemented a rule-based engine with the following techniques:
 
-### 1. Pattern Matching
-```python
-KNOWLEDGE_BASE = {
-    "greeting": {
-        "patterns": ["hello", "hi", "hey"],
-        "responses": ["Hello! How can I help?", "Hi there!"]
-    }
-}
-```
+## 1. Pattern Matching
+The system checks if the user's message contains known keywords and returns a matching response from a predefined knowledge base.
 
-### 2. Fuzzy Matching (Handles Typos)
-- "helo" → matches "hello" (87% similarity)
-- "jok" → matches "joke" (75% similarity)
-- Threshold: 65% similarity
+## 2. Fuzzy Matching
+If no exact keyword match is found, the system uses string similarity to find the closest match. This handles cases where the user misspells a word (e.g., "helo" still matches "hello").
 
-### 3. Spelling Correction
-```python
-SPELLING_CORRECTIONS = {
-    "thnks": "thanks",
-    "plz": "please",
-    "u": "you"
-}
-```
+## 3. Spelling Correction
+Common abbreviations and misspellings are mapped to their correct forms before processing (e.g., "plz" becomes "please").
 
-### 4. Math Calculator
-- Supports: `+`, `-`, `*`, `/`, `^`
-- Examples: "25 * 4", "what is 100 / 5"
+## 4. Math Evaluation
+If the message contains a mathematical expression, the system evaluates it and returns the result.
 
 ---
 
-# SLIDE 8: Knowledge Base Design
+# SLIDE 8: Knowledge Base
 
-## Categories (30+ Topics)
+The knowledge base is a dictionary of topics the bot can respond to. It contains over 30 categories:
 
-| Category | Example Patterns | Sample Response |
-|----------|-----------------|-----------------|
-| Greetings | hello, hi, hey | "Hello! How can I help?" |
-| Jokes | joke, funny | "Why don't scientists trust atoms?..." |
-| Facts | fact, did you know | "Honey never spoils!" |
-| Time/Date | time, what day | Dynamic: "It's 2:30 PM" |
-| Math | calculate, 5+3 | "5 + 3 = 8" |
-| Capitals | capital of France | "Paris!" |
-| Science | what is physics | Detailed explanation |
-| Motivation | cheer me up | Inspirational quote |
+| Category | Example Triggers | Response Type |
+|----------|-----------------|---------------|
+| Greetings | hello, hi, hey | Static |
+| Jokes | joke, funny | Randomized |
+| Facts | fact, did you know | Randomized |
+| Time/Date | time, what day | Dynamic (real-time) |
+| Mathematics | calculate, 5+3 | Computed |
+| Geography | capital of France | Static |
+| Science | what is physics | Static |
 
-## Response Variety
-
-Each category has **multiple responses** to avoid repetition:
-- Jokes: 14 different jokes
-- Facts: 14 unique facts
-- Greetings: 5 variations
+Each category has multiple possible responses so the bot does not always repeat the same reply.
 
 ---
 
-# SLIDE 9: Context Awareness
+# SLIDE 9: Conversation Context
 
-## Conversation Memory
-
-The bot remembers the **last 10 messages** per user:
+The system stores the last 10 messages per user, which allows it to handle follow-up messages:
 
 ```
 User: Tell me a joke
-Bot: Why don't scientists trust atoms? They make up everything! 😄
+Bot:  [Responds with a joke]
 
 User: Another one
-Bot: What do you call a lazy kangaroo? A pouch potato! 🦘
+Bot:  [Responds with a different joke]
 ```
 
-## How It Works
-
-```python
-def extract_context(message, conversation_history):
-    # Check if user wants more of the same
-    if "another" in message or "more" in message:
-        if recent_topic == "jokes":
-            return another_joke()
-```
-
-## Benefits
-
-- ✅ Natural conversation flow
-- ✅ Remembers what user asked before
-- ✅ Handles follow-up requests
+When the user says "another" or "more," the system checks what topic was discussed recently and provides a new response from the same category.
 
 ---
 
-# SLIDE 10: Caching System
+# SLIDE 10: Caching
 
-## Why Caching?
+To avoid reprocessing the same message repeatedly, the system caches responses.
 
-- **Faster responses** for repeated questions
-- **Reduces processing** load
-- **Improves performance** under heavy usage
+| Parameter | Value |
+|-----------|-------|
+| Cache duration | 5 minutes |
+| Key | MD5 hash of the normalized message |
+| Storage | In-memory dictionary |
 
-## How It Works
-
-```
-Message: "Tell me a joke"
-         ↓
-    Hash: MD5("tell me a joke") = "a1b2c3..."
-         ↓
-    Check Cache → Found? Return cached response
-                → Not found? Generate new response & cache it
-```
-
-## Cache Configuration
-
-| Setting | Value | Purpose |
-|---------|-------|---------|
-| Duration | 5 minutes | How long responses are cached |
-| Key | MD5 hash | Unique identifier for each message |
-| Storage | In-memory dict | Fast access |
+If the same message is received again within the cache window, the stored response is returned directly.
 
 ---
 
-# SLIDE 11: Sentiment Analysis
+# SLIDE 11: Sentiment Detection
 
-## What is Sentiment Analysis?
+The system includes a basic sentiment analysis feature that classifies messages as positive, negative, or neutral based on keyword matching.
 
-> Detecting the emotional tone of a message (Positive, Negative, Neutral)
+| Message | Result |
+|---------|--------|
+| "This is great" | Positive |
+| "I hate this" | Negative |
+| "What time is it?" | Neutral |
 
-## Our Implementation
-
-```python
-positive_words = ["good", "great", "awesome", "happy", "love", "thanks"]
-negative_words = ["bad", "terrible", "hate", "sad", "angry"]
-
-# Count matches and compare
-if pos_count > neg_count:
-    return "😊 Positive"
-elif neg_count > pos_count:
-    return "😔 Negative"
-else:
-    return "😐 Neutral"
-```
-
-## Examples
-
-| Message | Sentiment |
-|---------|-----------|
-| "This is awesome!" | 😊 Positive |
-| "I hate this" | 😔 Negative |
-| "What time is it?" | 😐 Neutral |
+This is logged on the dashboard for monitoring purposes.
 
 ---
 
 # SLIDE 12: Web Dashboard
 
-## Real-Time Monitoring
+We built a web dashboard that displays the bot's activity in real time:
 
-The dashboard shows live statistics:
+- Server uptime
+- Total messages received and processed
+- Number of unique users
+- Breakdown of response types (pattern match, fuzzy match, cached)
+- Last 10 messages received
 
-| Metric | Description |
-|--------|-------------|
-| ⏱ Uptime | How long the bot has been running |
-| 💬 Total Messages | All messages processed |
-| 👥 Active Users | Unique users who chatted |
-| 🧠 Smart Responses | Responses from the engine |
-| 💾 Cached | Responses served from cache |
-| 🎯 Pattern Matches | Exact pattern matches |
-| 🔍 Fuzzy Matches | Similarity-based matches |
-
-## Features
-
-- **Auto-refresh** every 5 seconds
-- **Recent messages** view (last 10)
-- **Modern UI** with gradient background
-- **Mobile responsive** design
+The dashboard refreshes automatically every 5 seconds.
 
 ---
 
 # SLIDE 13: API Endpoints
 
-## RESTful API Design
+Our Flask server exposes the following endpoints:
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Web dashboard |
-| `/whatsapp` | POST | Twilio webhook (receives messages) |
-| `/health` | GET | Health check (JSON status) |
-| `/test-response` | GET | Test without Twilio |
-
-## Example: Test Endpoint
-
-**Request:**
-```
-GET /test-response?message=tell%20me%20a%20joke
-```
-
-**Response:**
-```json
-{
-  "status": "success",
-  "test_message": "tell me a joke",
-  "bot_response": "Why did the scarecrow win an award?...",
-  "sentiment": "😐 Neutral",
-  "mode": "Smart Local Engine"
-}
-```
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/` | GET | Serves the web dashboard |
+| `/whatsapp` | POST | Receives incoming WhatsApp messages from Twilio |
+| `/health` | GET | Returns server status in JSON format |
+| `/test-response` | GET | Allows testing the response engine without Twilio |
 
 ---
 
-# SLIDE 14: Demo / Live Demonstration
+# SLIDE 14: Demonstration
 
-## Demo Scenarios
+During the demo, we will show:
 
-### 1. Basic Conversation
-```
-User: Hello
-Bot: 👋 Hello! I'm your smart assistant. How can I help?
-
-User: How are you?
-Bot: I'm doing great, thanks for asking! 😊
-```
-
-### 2. Knowledge Questions
-```
-User: What is the capital of France?
-Bot: 🏛️ The capital of France is Paris! 🗼
-
-User: What is AI?
-Bot: 🤖 Artificial Intelligence is technology that enables...
-```
-
-### 3. Math Calculations
-```
-User: Calculate 25 * 4
-Bot: 🔢 25 * 4 = 100
-
-User: What is 144 / 12?
-Bot: 🔢 144 / 12 = 12
-```
-
-### 4. Entertainment
-```
-User: Tell me a joke
-Bot: Why don't eggs tell jokes? They'd crack each other up! 🥚
-```
+1. **Sending a message** to the bot's WhatsApp number and receiving a reply
+2. **Different types of queries** — greetings, jokes, facts, math, general knowledge
+3. **Typo handling** — showing that misspelled input still gets a valid response
+4. **Follow-up messages** — using "another one" to get a new response on the same topic
+5. **Dashboard** — viewing live statistics as messages are exchanged
 
 ---
 
-# SLIDE 15: Testing & Results
+# SLIDE 15: Testing and Results
 
-## Testing Methodology
+| Test Type | What We Tested | Result |
+|-----------|---------------|--------|
+| Unit Testing | Individual functions (pattern match, fuzzy match, math parser) | Pass |
+| Integration Testing | Full message flow from Twilio webhook to response | Pass |
+| User Testing | Real conversations via WhatsApp | Pass |
 
-| Test Type | Description | Result |
-|-----------|-------------|--------|
-| **Unit Testing** | Individual functions | ✅ Pass |
-| **Integration Testing** | End-to-end flow | ✅ Pass |
-| **User Testing** | Real WhatsApp users | ✅ Pass |
-| **Load Testing** | Multiple concurrent users | ✅ Pass |
-
-## Performance Metrics
+## Performance
 
 | Metric | Value |
 |--------|-------|
-| Average Response Time | < 50ms |
-| Pattern Match Accuracy | 95% |
-| Fuzzy Match Accuracy | 85% |
-| Uptime | 99.9% |
-
-## Test Results Summary
-
-- ✅ **30+ knowledge categories** tested
-- ✅ **100+ pattern variations** validated
-- ✅ **Math expressions** accurate
-- ✅ **Typo handling** effective
-- ✅ **Context awareness** working
+| Average response time | < 50ms |
+| Pattern match accuracy | 95% |
+| Fuzzy match accuracy | 85% |
 
 ---
 
-# SLIDE 16: Challenges & Solutions
+# SLIDE 16: Challenges Faced
 
-## Challenge 1: Handling Typos
-
-**Problem:** Users often misspell words
-**Solution:** Implemented fuzzy matching with 65% threshold
-
-```
-"helo" → "hello" ✅
-"jokee" → "joke" ✅
-```
-
-## Challenge 2: Response Variety
-
-**Problem:** Repetitive responses feel robotic
-**Solution:** Multiple responses per category + randomization
-
-## Challenge 3: Context Understanding
-
-**Problem:** Users say "another one" without specifying
-**Solution:** Conversation memory tracks recent topics
-
-## Challenge 4: Math Expressions
-
-**Problem:** Different ways to ask (25*4, 25 times 4, calculate 25*4)
-**Solution:** Text normalization before parsing
-
-```python
-text.replace("times", "*").replace("plus", "+")
-```
+| Challenge | How We Handled It |
+|-----------|-------------------|
+| Users misspelling words | Implemented fuzzy matching with a 65% similarity threshold |
+| Bot giving the same response repeatedly | Added multiple responses per category with random selection |
+| Users saying "another one" without context | Used conversation history to track the last topic |
+| Math expressions written in different formats | Normalized text before parsing (e.g., "times" to "*") |
 
 ---
 
-# SLIDE 17: Comparison with AI Chatbots
+# SLIDE 17: Limitations
 
-## Our Bot vs AI-Powered Bots
+- The bot can only respond to topics that exist in its knowledge base
+- It cannot understand complex or open-ended questions
+- Responses are predefined, not generated dynamically
+- The Twilio sandbox has usage limits for testing
 
-| Feature | Our Smart Bot | AI Chatbots (ChatGPT, etc.) |
-|---------|--------------|----------------------------|
-| **Cost** | Free ✅ | $0.01-0.06/request |
-| **Speed** | <50ms ✅ | 500ms-2s |
-| **Privacy** | Local ✅ | Data sent to servers |
-| **Offline** | Yes ✅ | No |
-| **Customization** | Easy ✅ | Limited |
-| **Creativity** | Limited | High ✅ |
-| **Complex Questions** | Limited | High ✅ |
-
-## When to Use What?
-
-- **Use Our Bot:** FAQ, customer service, simple queries, budget projects
-- **Use AI Bots:** Creative writing, complex reasoning, open-ended conversations
+These limitations are expected for a rule-based system. An AI-powered approach would handle open-ended conversations better, but at the cost of API fees and external dependencies.
 
 ---
 
 # SLIDE 18: Future Improvements
 
-## Short-Term Enhancements
+If the project were to be extended, the following could be added:
 
-1. **More Knowledge Categories**
-   - Sports, movies, music
-   - Local news integration
-
-2. **Multi-language Support**
-   - Add responses in other languages
-   - Language detection
-
-3. **Voice Message Support**
-   - Speech-to-text integration
-   - Text-to-speech responses
-
-## Long-Term Vision
-
-1. **Machine Learning Integration**
-   - Train on conversation logs
-   - Improve response accuracy
-
-2. **Database Backend**
-   - SQLite/PostgreSQL for persistence
-   - User preferences storage
-
-3. **Admin Panel**
-   - Easy knowledge base editing
-   - Analytics and reports
+1. **More knowledge categories** — sports, entertainment, current events
+2. **Multi-language support** — detecting and responding in different languages
+3. **Database storage** — persisting conversation logs and user data
+4. **Machine learning** — training on past conversations to improve accuracy
+5. **Admin panel** — allowing non-developers to edit the knowledge base
 
 ---
 
 # SLIDE 19: Conclusion
 
-## What We Achieved
+For this project, we were tasked with chatting with a user's WhatsApp number programmatically. To accomplish this, we:
 
-✅ Built a **fully functional** WhatsApp chatbot
-✅ **Zero dependency** on external AI APIs
-✅ Implemented **intelligent NLP techniques**:
-   - Pattern matching
-   - Fuzzy matching
-   - Spelling correction
-   - Context awareness
-✅ Created a **real-time dashboard**
-✅ Integrated with **WhatsApp via Twilio**
+- Built a Flask server that receives WhatsApp messages via Twilio webhooks
+- Implemented a response engine using pattern matching, fuzzy matching, and spelling correction
+- Added conversation context tracking and response caching
+- Created a monitoring dashboard to observe bot activity
 
-## Key Takeaways
-
-1. **AI APIs aren't always necessary** for chatbots
-2. **Rule-based systems** can be surprisingly effective
-3. **Local processing** = faster, cheaper, more private
-4. **Python + Flask** = powerful combination for web apps
-
-## Impact
-
-- Suitable for **students** and **small businesses**
-- **Cost-effective** alternative to AI chatbots
-- **Educational value** in understanding NLP basics
+The system demonstrates that it is possible to programmatically interact with WhatsApp users and provide meaningful automated responses using Python and freely available tools.
 
 ---
 
 # SLIDE 20: References
 
-## Technologies & Documentation
-
-1. Python Documentation - https://docs.python.org/
-2. Flask Documentation - https://flask.palletsprojects.com/
-3. Twilio WhatsApp API - https://www.twilio.com/docs/whatsapp
-4. difflib (Fuzzy Matching) - https://docs.python.org/3/library/difflib.html
-
-## Research Papers
-
-1. "A Survey on Chatbot Implementation" - IEEE 2020
-2. "Pattern Matching in Natural Language Processing" - ACM 2019
-3. "Rule-Based vs ML Chatbots" - Journal of AI Research 2021
-
-## Online Resources
-
-1. Real Python - Flask Tutorials
-2. Twilio Blog - WhatsApp Integration Guide
-3. GeeksforGeeks - NLP Basics
+1. Python Software Foundation. *Python Documentation*. https://docs.python.org/
+2. Pallets Projects. *Flask Documentation*. https://flask.palletsprojects.com/
+3. Twilio Inc. *WhatsApp API Documentation*. https://www.twilio.com/docs/whatsapp
+4. Python Software Foundation. *difflib - Helpers for Computing Deltas*. https://docs.python.org/3/library/difflib.html
+5. "A Survey on Chatbot Implementation in Customer Service" - IEEE, 2020
+6. "Pattern Matching in Natural Language Processing" - ACM, 2019
 
 ---
 
-# SLIDE 21: Q&A
+# SLIDE 21: Questions and Answers
 
-## Questions & Answers
+**Thank you for your attention.**
 
-**Thank you for your attention!**
+**Demo:** http://localhost:5000
 
-🤖 **Demo Available:** http://localhost:5000
-
-📧 **Contact:** [Your Email]
-
-📱 **Try the Bot:** [WhatsApp Number/Sandbox]
+**Contact:** [Your Email]
 
 ---
 
-## Common Questions to Prepare For:
-
-1. **Why not use ChatGPT API?**
-   - Cost, rate limits, privacy, learning opportunity
-
-2. **How accurate is the fuzzy matching?**
-   - 85% accuracy with 65% threshold
-
-3. **Can this scale to many users?**
-   - Yes, Flask can handle concurrent requests
-
-4. **What's the hardest part of this project?**
-   - Balancing accuracy vs response variety
-
-5. **How would you add a new topic?**
-   - Simply add to KNOWLEDGE_BASE dictionary
-
----
-
-# SLIDE 22: Thank You
-
-## Smart WhatsApp Chatbot
-
-*100% Local Intelligence - No AI APIs Required*
-
-**Built with ❤️ using Python, Flask & Twilio**
-
----
-
-### Project Links
-
-- 📁 Source Code: [GitHub Link]
-- 📊 Live Demo: http://localhost:5000
-- 📄 Documentation: README.md
-
----
-
-**[Your Name]**
+**[Group Members]**
 **[Your University]**
 **[Date]**
-
----
-
-# APPENDIX: Code Snippets for Slides
-
-## A1: Main Response Function
-
-```python
-def get_smart_response(message, phone):
-    # 1. Check math expressions
-    math_result = calculate_expression(message)
-    if math_result:
-        return math_result
-
-    # 2. Pattern matching
-    for category, data in KNOWLEDGE_BASE.items():
-        for pattern in data["patterns"]:
-            if pattern in message.lower():
-                return random.choice(data["responses"])
-
-    # 3. Fuzzy matching
-    best_match, score = fuzzy_match(message, all_patterns)
-    if score >= 0.65:
-        return get_response_for(best_match)
-
-    # 4. Default response
-    return "I'm here to help! Try asking for a joke or fact."
-```
-
-## A2: Fuzzy Matching Implementation
-
-```python
-import difflib
-
-def fuzzy_match(message, patterns, threshold=0.65):
-    best_match = None
-    best_score = 0
-
-    for pattern in patterns:
-        score = difflib.SequenceMatcher(
-            None,
-            message.lower(),
-            pattern.lower()
-        ).ratio()
-
-        if score > best_score and score >= threshold:
-            best_score = score
-            best_match = pattern
-
-    return best_match, best_score
-```
-
-## A3: Flask Webhook
-
-```python
-@app.route("/whatsapp", methods=["POST"])
-def whatsapp_webhook():
-    incoming_msg = request.form.get('Body', '')
-    from_number = request.form.get('From', '')
-
-    response, sentiment = get_response(incoming_msg, from_number)
-
-    resp = MessagingResponse()
-    resp.message(response)
-
-    return str(resp)
-```
-
----
-
-# Presentation Tips
-
-1. **Practice the demo** multiple times before presenting
-2. **Have backup screenshots** in case live demo fails
-3. **Prepare for common questions** (see Q&A slide)
-4. **Show enthusiasm** - this is YOUR project!
-5. **Time yourself** - aim for 15-20 minutes
-6. **Make eye contact** with the audience, not the screen
-
-
