@@ -1058,6 +1058,40 @@ Most Common Misspellings Encountered:
    - "jok" instead of "joke"
 
 
+APPENDIX I: How to Interact with the Bot
+
+To test the chatbot, follow the steps below:
+
+Step 1: Save the Bot's WhatsApp Number
+   Save the following number to your phone contacts:
+   [Your Twilio WhatsApp Number, e.g., +1 415 523 8886]
+
+Step 2: Join the Sandbox
+   Open WhatsApp and send the following message to the number above:
+   join [your-sandbox-keyword]
+
+   For example: join bright-eagle
+
+   You will receive a confirmation message once you have successfully joined.
+
+Step 3: Start Chatting
+   After joining, you can send any message to the bot and it will respond
+   automatically. Try the following example messages:
+
+   - "hello" or "hi" for a greeting
+   - "tell me a joke" for a random joke
+   - "tell me a fact" for a random interesting fact
+   - "what time is it" for the current time
+   - "capital of France" for geography questions
+   - "calculate 25 * 4" or "what is 10 + 5" for math
+   - "what is AI" for technology topics
+   - "another one" after a joke or fact to get a different one
+   - "/help" to see all available commands
+
+Note: The Twilio sandbox session expires after 72 hours of inactivity.
+If the bot stops responding, resend the join message from Step 2 to rejoin.
+
+
 ================================================================================
                           END OF DOCUMENTATION
 ================================================================================
