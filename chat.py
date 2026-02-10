@@ -6,7 +6,10 @@ Fully functional chatbot using pattern matching, NLP techniques, and knowledge b
 
 from flask import Flask, request, render_template_string
 from twilio.twiml.messaging_response import MessagingResponse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
+# West Africa Time (UTC+1)
+WAT = timezone(timedelta(hours=1))
 import random
 import re
 import hashlib
@@ -29,7 +32,7 @@ stats = {
     "total_cached_calls": 0,
     "total_pattern_matches": 0,
     "total_fuzzy_matches": 0,
-    "start_time": datetime.now()
+    "start_time": datetime.now(WAT)
 }
 
 # Response Cache for performance
@@ -336,7 +339,445 @@ KNOWLEDGE_BASE = {
     "help": {
         "patterns": ["help", "what can you do", "commands", "options", "menu"],
         "responses": [
-            "🤖 *Here's what I can do:*\n\n💬 Chat & Conversation\n🔢 Math calculations\n😄 Tell jokes\n📚 Share fun facts\n⏰ Tell time & date\n🌍 Answer questions\n🧠 General knowledge\n\n*Try saying:*\n• 'Tell me a joke'\n• '25 * 4'\n• 'What is AI?'\n• 'Capital of France'",
+            "🤖 *Here's what I can do:*\n\n💬 Chat & Conversation\n🔢 Math calculations\n😄 Tell jokes\n📚 Share fun facts\n⏰ Tell time & date\n🌍 Answer questions\n🧠 General knowledge\n🏀 Sports\n🎵 Music\n🎬 Movies\n🍕 Food\n🏥 Health\n📖 History\n🚀 Space\n🐾 Animals\n\n*Try saying:*\n• 'Tell me a joke'\n• '25 * 4'\n• 'What is AI?'\n• 'Capital of France'\n• 'Tell me about football'\n• 'What is the solar system'",
+        ]
+    },
+
+    # More Capitals
+    "capital_germany": {
+        "patterns": ["capital of germany", "german capital"],
+        "responses": ["🏛️ The capital of Germany is Berlin!"]
+    },
+    "capital_india": {
+        "patterns": ["capital of india", "indian capital"],
+        "responses": ["🏛️ The capital of India is New Delhi!"]
+    },
+    "capital_china": {
+        "patterns": ["capital of china", "chinese capital"],
+        "responses": ["🏛️ The capital of China is Beijing!"]
+    },
+    "capital_brazil": {
+        "patterns": ["capital of brazil", "brazilian capital"],
+        "responses": ["🏛️ The capital of Brazil is Brasília!"]
+    },
+    "capital_egypt": {
+        "patterns": ["capital of egypt", "egyptian capital"],
+        "responses": ["🏛️ The capital of Egypt is Cairo!"]
+    },
+    "capital_south_africa": {
+        "patterns": ["capital of south africa", "south african capital"],
+        "responses": ["🏛️ South Africa has three capitals! Pretoria (executive), Cape Town (legislative), and Bloemfontein (judicial)."]
+    },
+    "capital_ghana": {
+        "patterns": ["capital of ghana", "ghanaian capital"],
+        "responses": ["🏛️ The capital of Ghana is Accra!"]
+    },
+    "capital_kenya": {
+        "patterns": ["capital of kenya", "kenyan capital"],
+        "responses": ["🏛️ The capital of Kenya is Nairobi!"]
+    },
+    "capital_canada": {
+        "patterns": ["capital of canada", "canadian capital"],
+        "responses": ["🏛️ The capital of Canada is Ottawa!"]
+    },
+    "capital_australia": {
+        "patterns": ["capital of australia", "australian capital"],
+        "responses": ["🏛️ The capital of Australia is Canberra! (Not Sydney, which is the largest city.)"]
+    },
+    "capital_russia": {
+        "patterns": ["capital of russia", "russian capital"],
+        "responses": ["🏛️ The capital of Russia is Moscow!"]
+    },
+    "capital_italy": {
+        "patterns": ["capital of italy", "italian capital"],
+        "responses": ["🏛️ The capital of Italy is Rome!"]
+    },
+    "capital_spain": {
+        "patterns": ["capital of spain", "spanish capital"],
+        "responses": ["🏛️ The capital of Spain is Madrid!"]
+    },
+    "capital_turkey": {
+        "patterns": ["capital of turkey", "turkish capital"],
+        "responses": ["🏛️ The capital of Turkey is Ankara! (Not Istanbul, which is the largest city.)"]
+    },
+    "capital_ethiopia": {
+        "patterns": ["capital of ethiopia", "ethiopian capital"],
+        "responses": ["🏛️ The capital of Ethiopia is Addis Ababa!"]
+    },
+    "capital_tanzania": {
+        "patterns": ["capital of tanzania", "tanzanian capital"],
+        "responses": ["🏛️ The capital of Tanzania is Dodoma!"]
+    },
+    "capital_cameroon": {
+        "patterns": ["capital of cameroon", "cameroonian capital"],
+        "responses": ["🏛️ The capital of Cameroon is Yaoundé!"]
+    },
+
+    # Sports
+    "football": {
+        "patterns": ["football", "soccer", "who is the best footballer", "tell me about football",
+                     "world cup", "champions league"],
+        "responses": [
+            "⚽ Football (soccer) is the most popular sport in the world! The FIFA World Cup is the biggest tournament, held every 4 years. Legendary players include Pelé, Maradona, Messi, and Ronaldo.",
+            "⚽ Football is played by over 250 million people in more than 200 countries. The current World Cup holders compete against teams from all continents!",
+            "⚽ The FIFA World Cup started in 1930. Brazil has won it the most times (5). Some of the greatest players ever include Messi, Ronaldo, Pelé, and Maradona!",
+        ]
+    },
+    "basketball": {
+        "patterns": ["basketball", "nba", "who is the best basketball player", "tell me about basketball"],
+        "responses": [
+            "🏀 Basketball was invented by Dr. James Naismith in 1891. The NBA is the top professional league. Legends include Michael Jordan, LeBron James, Kobe Bryant, and Stephen Curry!",
+            "🏀 Basketball is played worldwide! The NBA has 30 teams. Michael Jordan is widely considered the greatest player of all time, with 6 championships!",
+        ]
+    },
+    "cricket": {
+        "patterns": ["cricket", "tell me about cricket", "ipl", "cricket world cup"],
+        "responses": [
+            "🏏 Cricket is hugely popular in countries like India, Australia, England, and Pakistan. The Cricket World Cup is held every 4 years. Legends include Sachin Tendulkar, Don Bradman, and Virat Kohli!",
+        ]
+    },
+    "olympics": {
+        "patterns": ["olympics", "olympic games", "tell me about the olympics"],
+        "responses": [
+            "🏅 The Olympic Games are the world's leading international sporting event. They originated in ancient Greece and were revived in 1896. The Summer and Winter Olympics alternate every 2 years!",
+        ]
+    },
+    "tennis": {
+        "patterns": ["tennis", "tell me about tennis", "grand slam", "wimbledon"],
+        "responses": [
+            "🎾 Tennis has four Grand Slam tournaments: Australian Open, French Open, Wimbledon, and US Open. Legends include Roger Federer, Rafael Nadal, Serena Williams, and Novak Djokovic!",
+        ]
+    },
+
+    # Music
+    "music": {
+        "patterns": ["music", "tell me about music", "what is music", "music genres"],
+        "responses": [
+            "🎵 Music is the art of arranging sounds in time. Major genres include Pop, Rock, Hip-Hop, R&B, Jazz, Classical, Country, and Electronic. Music has been part of every human culture throughout history!",
+            "🎵 Music is a universal language! There are hundreds of genres worldwide, from Afrobeats to K-Pop, from Classical to Reggae. It can influence emotions, boost memory, and bring people together!",
+        ]
+    },
+    "hiphop": {
+        "patterns": ["hip hop", "hiphop", "rap", "rap music", "tell me about rap"],
+        "responses": [
+            "🎤 Hip-Hop originated in the Bronx, New York in the 1970s. It includes rapping, DJing, breakdancing, and graffiti. Influential artists include Tupac, Notorious B.I.G., Jay-Z, Kendrick Lamar, and Eminem!",
+        ]
+    },
+    "afrobeats": {
+        "patterns": ["afrobeats", "afro beats", "nigerian music", "african music"],
+        "responses": [
+            "🥁 Afrobeats is a genre that originated in West Africa, blending African rhythms with pop and hip-hop. Artists like Burna Boy, Wizkid, Davido, and Tiwa Savage have taken it global!",
+        ]
+    },
+
+    # Movies & Entertainment
+    "movies": {
+        "patterns": ["movies", "tell me about movies", "film", "best movies", "cinema"],
+        "responses": [
+            "🎬 Cinema has been entertaining people since the late 1800s! Major film industries include Hollywood (USA), Bollywood (India), and Nollywood (Nigeria). Some all-time greats include The Godfather, Titanic, and The Dark Knight!",
+            "🎬 The film industry generates billions yearly. Hollywood is the largest by revenue, Bollywood produces the most films, and Nollywood is the second largest by volume!",
+        ]
+    },
+    "marvel": {
+        "patterns": ["marvel", "mcu", "avengers", "marvel movies", "superhero"],
+        "responses": [
+            "🦸 Marvel Cinematic Universe (MCU) is the highest-grossing film franchise ever! It includes iconic characters like Iron Man, Spider-Man, Captain America, Thor, and Black Panther. Avengers: Endgame is one of the highest-grossing films of all time!",
+        ]
+    },
+
+    # Food
+    "food": {
+        "patterns": ["food", "tell me about food", "popular food", "best food", "what should i eat"],
+        "responses": [
+            "🍕 Food varies hugely across cultures! Some popular dishes worldwide: Pizza (Italy), Sushi (Japan), Jollof Rice (West Africa), Tacos (Mexico), Biryani (South Asia), and Hamburgers (USA). What's your favorite?",
+            "🍽️ Every culture has its signature dishes! Nigerian Jollof Rice, Italian Pasta, Japanese Ramen, Mexican Burritos, Indian Curry, and Chinese Dim Sum are loved worldwide!",
+        ]
+    },
+    "jollof": {
+        "patterns": ["jollof", "jollof rice", "who makes the best jollof"],
+        "responses": [
+            "🍚 Jollof Rice is a beloved West African dish! Nigeria and Ghana have a friendly rivalry over who makes it best. The truth? Both are delicious! It's made with rice, tomatoes, peppers, and spices.",
+            "🍚 The great Jollof debate! Nigerians say theirs is the best, Ghanaians disagree, and Senegalese remind everyone they invented it. One thing is sure - it's always delicious!",
+        ]
+    },
+
+    # Health
+    "health": {
+        "patterns": ["health", "health tips", "how to stay healthy", "healthy lifestyle"],
+        "responses": [
+            "🏥 Key health tips:\n• Drink plenty of water (8 glasses daily)\n• Exercise regularly (at least 30 min/day)\n• Get 7-8 hours of sleep\n• Eat balanced meals with fruits and vegetables\n• Manage stress through relaxation\n• Avoid excessive sugar and processed foods",
+            "🏥 Staying healthy is simple:\n• Stay hydrated\n• Move your body daily\n• Eat whole foods\n• Sleep well\n• Take breaks from screens\n• Stay socially connected\n• Practice good hygiene",
+        ]
+    },
+    "exercise": {
+        "patterns": ["exercise", "workout", "how to exercise", "fitness", "gym"],
+        "responses": [
+            "💪 Regular exercise is essential! Try:\n• Walking or jogging (30 min/day)\n• Push-ups, squats, and planks\n• Stretching and yoga\n• Swimming or cycling\nStart small and build up gradually. Consistency matters more than intensity!",
+        ]
+    },
+    "mental_health": {
+        "patterns": ["mental health", "anxiety", "stress", "stressed", "overthinking", "worry"],
+        "responses": [
+            "🧠 Mental health matters! Some tips:\n• Talk to someone you trust\n• Take breaks when overwhelmed\n• Practice deep breathing\n• Limit social media\n• Stay physically active\n• Get enough sleep\n\nRemember: It's okay to ask for help. You're not alone! 💚",
+        ]
+    },
+
+    # History
+    "history": {
+        "patterns": ["history", "tell me about history", "world history", "what is history"],
+        "responses": [
+            "📖 History is the study of past events. Key periods include: Ancient civilizations (Egypt, Greece, Rome), the Middle Ages, the Renaissance, the Industrial Revolution, and Modern History. Learning from the past helps us understand the present!",
+        ]
+    },
+    "world_war": {
+        "patterns": ["world war", "ww1", "ww2", "world war 2", "world war 1", "second world war"],
+        "responses": [
+            "📖 World War I (1914-1918) involved the Allied Powers vs Central Powers. World War II (1939-1945) was the deadliest conflict in history, involving most of the world's nations. Together, they shaped the modern world order.",
+        ]
+    },
+    "ancient_egypt": {
+        "patterns": ["ancient egypt", "pyramids", "pharaoh", "egyptian civilization"],
+        "responses": [
+            "🏺 Ancient Egypt was one of the greatest civilizations, lasting over 3,000 years! They built the pyramids, developed hieroglyphics, made advances in medicine and mathematics, and believed in life after death. The Great Pyramid of Giza is one of the Seven Wonders of the Ancient World!",
+        ]
+    },
+
+    # Space & Astronomy
+    "space": {
+        "patterns": ["space", "outer space", "tell me about space", "universe"],
+        "responses": [
+            "🚀 Space is vast and mostly empty! The observable universe is about 93 billion light-years across. It contains billions of galaxies, each with billions of stars. Humans have visited the Moon and sent probes to every planet in our solar system!",
+            "🌌 The universe is about 13.8 billion years old! It contains everything: galaxies, stars, planets, moons, asteroids, and mysterious dark matter. Only about 5% of the universe is made of ordinary matter!",
+        ]
+    },
+    "solar_system": {
+        "patterns": ["solar system", "planets", "how many planets", "tell me about planets"],
+        "responses": [
+            "🪐 Our solar system has 8 planets:\n1. Mercury (closest to Sun)\n2. Venus (hottest planet)\n3. Earth (our home!)\n4. Mars (the red planet)\n5. Jupiter (largest planet)\n6. Saturn (famous rings)\n7. Uranus (tilted sideways)\n8. Neptune (farthest from Sun)\n\nPluto was reclassified as a dwarf planet in 2006!",
+        ]
+    },
+    "moon": {
+        "patterns": ["moon", "tell me about the moon", "earth moon", "lunar"],
+        "responses": [
+            "🌙 The Moon is Earth's only natural satellite! It's about 384,400 km away. Neil Armstrong was the first person to walk on it in 1969. The Moon affects Earth's tides and has no atmosphere!",
+        ]
+    },
+    "sun": {
+        "patterns": ["sun", "tell me about the sun", "how hot is the sun", "what is the sun"],
+        "responses": [
+            "☀️ The Sun is a star at the center of our solar system! It's about 4.6 billion years old, has a surface temperature of about 5,500°C, and is about 109 times the diameter of Earth. It provides the light and energy essential for life on Earth!",
+        ]
+    },
+    "mars": {
+        "patterns": ["mars", "tell me about mars", "red planet", "life on mars"],
+        "responses": [
+            "🔴 Mars is the 4th planet from the Sun, known as the Red Planet due to iron oxide on its surface. It has the tallest volcano (Olympus Mons) and the deepest canyon (Valles Marineris) in the solar system. NASA and SpaceX are working toward sending humans there!",
+        ]
+    },
+
+    # Animals
+    "animals": {
+        "patterns": ["animals", "tell me about animals", "animal facts", "favorite animal"],
+        "responses": [
+            "🐾 The animal kingdom is incredibly diverse! There are over 8.7 million species on Earth. Animals are classified into vertebrates (with backbones) and invertebrates. The blue whale is the largest animal ever, and the bee hummingbird is the smallest bird!",
+        ]
+    },
+    "lion": {
+        "patterns": ["lion", "tell me about lions", "king of the jungle"],
+        "responses": [
+            "🦁 Lions are called the 'King of the Jungle' even though they live in grasslands and savannas! They are the only cats that live in groups (called prides). Male lions are known for their manes, and females do most of the hunting!",
+        ]
+    },
+    "elephant": {
+        "patterns": ["elephant", "tell me about elephants"],
+        "responses": [
+            "🐘 Elephants are the largest land animals! They're incredibly intelligent, have excellent memory, and can live up to 70 years. African elephants have larger ears than Asian elephants. They communicate using sounds, some too low for humans to hear!",
+        ]
+    },
+    "dog": {
+        "patterns": ["dog", "dogs", "tell me about dogs", "man's best friend"],
+        "responses": [
+            "🐕 Dogs have been human companions for over 15,000 years! There are more than 340 recognized breeds. They can understand up to 250 words, their sense of smell is 40 times better than humans, and they can be trained for many jobs including guiding, therapy, and rescue!",
+        ]
+    },
+    "cat": {
+        "patterns": ["cat", "cats", "tell me about cats"],
+        "responses": [
+            "🐱 Cats have been domesticated for about 10,000 years! They sleep 12-16 hours a day, can rotate their ears 180 degrees, and always land on their feet. Ancient Egyptians worshipped cats and considered them sacred!",
+        ]
+    },
+
+    # Computer Science & Technology
+    "internet": {
+        "patterns": ["internet", "what is the internet", "how does the internet work", "www"],
+        "responses": [
+            "🌐 The Internet is a global network of interconnected computers! It was developed from ARPANET in the 1960s. The World Wide Web (WWW) was invented by Tim Berners-Lee in 1989. Today, over 5 billion people use the internet worldwide!",
+        ]
+    },
+    "database": {
+        "patterns": ["database", "what is a database", "explain database", "sql"],
+        "responses": [
+            "🗄️ A database is an organized collection of data stored electronically. Types include relational databases (MySQL, PostgreSQL) and NoSQL databases (MongoDB). SQL (Structured Query Language) is the standard language for managing relational databases!",
+        ]
+    },
+    "html": {
+        "patterns": ["html", "what is html", "explain html"],
+        "responses": [
+            "🌐 HTML (HyperText Markup Language) is the standard language for creating web pages! It uses tags like <h1>, <p>, and <div> to structure content. Along with CSS and JavaScript, it forms the foundation of web development!",
+        ]
+    },
+    "javascript": {
+        "patterns": ["javascript", "what is javascript", "explain javascript", "js"],
+        "responses": [
+            "💛 JavaScript is one of the most popular programming languages! It was created in just 10 days in 1995. Originally for web browsers, it now runs everywhere - servers (Node.js), mobile apps, and even robots. It powers interactive features on almost every website!",
+        ]
+    },
+    "cybersecurity": {
+        "patterns": ["cybersecurity", "cyber security", "hacking", "what is cybersecurity"],
+        "responses": [
+            "🔒 Cybersecurity is the practice of protecting systems, networks, and data from digital attacks. Key areas include network security, application security, and data protection. Tips: Use strong passwords, enable 2FA, keep software updated, and be cautious with links!",
+        ]
+    },
+
+    # Mathematics Concepts
+    "algebra": {
+        "patterns": ["algebra", "what is algebra", "explain algebra"],
+        "responses": [
+            "🔢 Algebra is a branch of mathematics dealing with symbols and rules for manipulating them. It uses letters (like x and y) to represent unknown values. For example, in the equation 2x + 3 = 7, solving for x gives x = 2!",
+        ]
+    },
+    "geometry": {
+        "patterns": ["geometry", "what is geometry", "explain geometry", "shapes"],
+        "responses": [
+            "📐 Geometry is the branch of mathematics that deals with shapes, sizes, and properties of space. It covers points, lines, angles, surfaces, and solids. Key shapes include triangles, circles, squares, and cubes. The Greek mathematician Euclid is called the 'Father of Geometry'!",
+        ]
+    },
+    "pi": {
+        "patterns": ["what is pi", "value of pi", "pi number"],
+        "responses": [
+            "🥧 Pi (π) is a mathematical constant representing the ratio of a circle's circumference to its diameter. Its value is approximately 3.14159. It's an irrational number, meaning its decimal digits go on forever without repeating!",
+        ]
+    },
+
+    # Environment
+    "climate_change": {
+        "patterns": ["climate change", "global warming", "greenhouse effect", "carbon emissions"],
+        "responses": [
+            "🌍 Climate change refers to long-term shifts in global temperatures and weather patterns. Human activities, especially burning fossil fuels, have been the main driver since the 1800s. Effects include rising sea levels, extreme weather, and loss of biodiversity. Everyone can help by reducing energy use and supporting sustainable practices!",
+        ]
+    },
+    "renewable_energy": {
+        "patterns": ["renewable energy", "solar energy", "wind energy", "clean energy", "green energy"],
+        "responses": [
+            "🌱 Renewable energy comes from natural sources that replenish themselves:\n• Solar - energy from sunlight\n• Wind - energy from air movement\n• Hydro - energy from flowing water\n• Geothermal - energy from Earth's heat\n• Biomass - energy from organic materials\n\nThey produce little to no greenhouse gas emissions!",
+        ]
+    },
+
+    # Languages
+    "languages": {
+        "patterns": ["languages", "most spoken languages", "how many languages", "world languages"],
+        "responses": [
+            "🗣️ There are about 7,000 languages spoken worldwide! The most spoken by total speakers:\n1. English (~1.5 billion)\n2. Mandarin Chinese (~1.1 billion)\n3. Hindi (~600 million)\n4. Spanish (~550 million)\n5. French (~300 million)\n\nAbout 40% of languages are endangered with fewer than 1,000 speakers!",
+        ]
+    },
+
+    # Currency
+    "currency": {
+        "patterns": ["currency", "money", "currencies of the world", "what is currency"],
+        "responses": [
+            "💰 Currency is a system of money used in a country. Major currencies include:\n• US Dollar (USD) 🇺🇸\n• Euro (EUR) 🇪🇺\n• British Pound (GBP) 🇬🇧\n• Japanese Yen (JPY) 🇯🇵\n• Nigerian Naira (NGN) 🇳🇬\n• Chinese Yuan (CNY) 🇨🇳\n\nThe US Dollar is the world's primary reserve currency!",
+        ]
+    },
+    "bitcoin": {
+        "patterns": ["bitcoin", "crypto", "cryptocurrency", "blockchain"],
+        "responses": [
+            "₿ Bitcoin is the first and most well-known cryptocurrency, created in 2009 by the mysterious Satoshi Nakamoto. It uses blockchain technology - a decentralized digital ledger. Other popular cryptocurrencies include Ethereum, Solana, and Litecoin!",
+        ]
+    },
+
+    # Education
+    "education": {
+        "patterns": ["education", "importance of education", "why is education important", "learning"],
+        "responses": [
+            "📚 Education is the process of acquiring knowledge, skills, and values. It empowers individuals, reduces poverty, promotes equality, and drives innovation. Formal education typically includes primary, secondary, and tertiary levels. Lifelong learning is key to personal and professional growth!",
+        ]
+    },
+    "university": {
+        "patterns": ["university", "college", "higher education", "best universities"],
+        "responses": [
+            "🎓 Universities provide higher education and research opportunities. Some of the world's top universities include MIT, Stanford, Harvard, Oxford, and Cambridge. Africa has great institutions too, including University of Cape Town, University of Lagos, and Makerere University!",
+        ]
+    },
+
+    # Social Media
+    "social_media": {
+        "patterns": ["social media", "instagram", "twitter", "tiktok", "facebook", "snapchat"],
+        "responses": [
+            "📱 Social media platforms connect billions of people:\n• Facebook/Meta - largest social network\n• Instagram - photo and video sharing\n• Twitter/X - short-form text updates\n• TikTok - short video content\n• Snapchat - disappearing messages\n• LinkedIn - professional networking\n\nTip: Use social media mindfully and protect your privacy!",
+        ]
+    },
+
+    # Riddles
+    "riddle": {
+        "patterns": ["riddle", "tell me a riddle", "give me a riddle", "brain teaser"],
+        "responses": [
+            "🧩 Riddle: I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?\n\nAnswer: A map!",
+            "🧩 Riddle: The more you take, the more you leave behind. What am I?\n\nAnswer: Footsteps!",
+            "🧩 Riddle: I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?\n\nAnswer: An echo!",
+            "🧩 Riddle: What has keys but no locks, space but no room, and you can enter but can't go inside?\n\nAnswer: A keyboard!",
+            "🧩 Riddle: I'm tall when I'm young and short when I'm old. What am I?\n\nAnswer: A candle!",
+            "🧩 Riddle: What can travel around the world while staying in a corner?\n\nAnswer: A stamp!",
+        ]
+    },
+
+    # Quotes
+    "quote": {
+        "patterns": ["quote", "famous quote", "inspirational quote", "give me a quote", "wise words"],
+        "responses": [
+            "📜 'The only way to do great work is to love what you do.' - Steve Jobs",
+            "📜 'Education is the most powerful weapon which you can use to change the world.' - Nelson Mandela",
+            "📜 'In the middle of every difficulty lies opportunity.' - Albert Einstein",
+            "📜 'It always seems impossible until it's done.' - Nelson Mandela",
+            "📜 'The future belongs to those who believe in the beauty of their dreams.' - Eleanor Roosevelt",
+            "📜 'Success is not final, failure is not fatal: it is the courage to continue that counts.' - Winston Churchill",
+            "📜 'Be the change that you wish to see in the world.' - Mahatma Gandhi",
+            "📜 'Knowledge is power.' - Francis Bacon",
+        ]
+    },
+
+    # Continent info
+    "africa": {
+        "patterns": ["africa", "tell me about africa", "african continent"],
+        "responses": [
+            "🌍 Africa is the second-largest and second-most populous continent with 54 countries! It's home to the Sahara (largest hot desert), the Nile (longest river), and incredible wildlife. Africa has a young population and is rich in natural resources, culture, and history!",
+        ]
+    },
+    "europe": {
+        "patterns": ["europe", "tell me about europe", "european continent"],
+        "responses": [
+            "🌍 Europe is the second-smallest continent with 44 countries! It's known for its rich history, diverse cultures, and influential contributions to art, science, and philosophy. The European Union (EU) is a political and economic union of 27 member states!",
+        ]
+    },
+    "asia": {
+        "patterns": ["asia", "tell me about asia", "asian continent"],
+        "responses": [
+            "🌏 Asia is the largest and most populous continent! It covers about 30% of Earth's land area and is home to over 4.5 billion people. It includes diverse countries from Japan to India to Saudi Arabia, and has some of the world's oldest civilizations!",
+        ]
+    },
+
+    # Nigeria specific
+    "nigeria": {
+        "patterns": ["nigeria", "tell me about nigeria", "naija"],
+        "responses": [
+            "🇳🇬 Nigeria is the most populous country in Africa with over 200 million people! It has 36 states and the FCT (Abuja). Nigeria has over 250 ethnic groups, with Hausa, Yoruba, and Igbo being the largest. It's known for its oil industry, Nollywood, and Afrobeats music!",
+        ]
+    },
+
+    # Greetings in other languages
+    "greetings_languages": {
+        "patterns": ["hello in other languages", "how to say hello", "greetings in different languages"],
+        "responses": [
+            "👋 Hello in different languages:\n• Spanish: Hola\n• French: Bonjour\n• German: Hallo\n• Italian: Ciao\n• Portuguese: Olá\n• Arabic: Marhaba\n• Chinese: Nǐ hǎo\n• Japanese: Konnichiwa\n• Yoruba: Bawo\n• Hausa: Sannu\n• Igbo: Ndewo\n• Swahili: Jambo",
         ]
     },
 }
@@ -379,7 +820,7 @@ SPELLING_CORRECTIONS = {
 def log_message(phone, message, response, msg_type="user"):
     """Log all messages for analytics"""
     message_log.append({
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": datetime.now(WAT).strftime("%Y-%m-%d %H:%M:%S"),
         "phone": phone[-4:] if len(phone) >= 4 else phone,
         "type": msg_type,
         "message": message,
@@ -499,7 +940,7 @@ def get_cached_response(message):
     cache_key = get_cache_key(message)
     if cache_key in RESPONSE_CACHE:
         cached = RESPONSE_CACHE[cache_key]
-        if datetime.now() < cached["expires"]:
+        if datetime.now(WAT) < cached["expires"]:
             stats["total_cached_calls"] += 1
             return cached["response"]
         else:
@@ -515,7 +956,7 @@ def cache_response(message, response):
     cache_key = get_cache_key(message)
     RESPONSE_CACHE[cache_key] = {
         "response": response,
-        "expires": datetime.now() + timedelta(seconds=CACHE_DURATION)
+        "expires": datetime.now(WAT) + timedelta(seconds=CACHE_DURATION)
     }
 
 
@@ -592,18 +1033,36 @@ def get_smart_response(message, phone):
                 stats["total_pattern_matches"] += 1
                 return random.choice(data["responses"])
 
-    # Exact pattern matching in knowledge base
+    # Build a list of all (pattern, category) pairs and sort by length (longest first)
+    # This ensures specific patterns like "capital of canada" match before generic "capital of"
+    all_pattern_pairs = []
     for category, data in KNOWLEDGE_BASE.items():
         for pattern in data["patterns"]:
-            if pattern in message_lower or pattern in original_lower:
+            all_pattern_pairs.append((pattern, category))
+    all_pattern_pairs.sort(key=lambda x: len(x[0]), reverse=True)
+
+    # Exact pattern matching in knowledge base
+    for pattern, category in all_pattern_pairs:
+        # For short patterns (5 chars or less), require whole word match
+        # This prevents "cat" matching inside "education", "no" inside "information", etc.
+        if len(pattern) <= 5:
+            if re.search(r'\b' + re.escape(pattern) + r'\b', message_lower) or re.search(r'\b' + re.escape(pattern) + r'\b', original_lower):
+                data = KNOWLEDGE_BASE[category]
                 response = random.choice(data["responses"])
-
-                # Handle dynamic responses
                 if response == "__TIME__":
-                    response = f"⏰ The current time is: {datetime.now().strftime('%I:%M %p')}"
+                    response = f"⏰ The current time is: {datetime.now(WAT).strftime('%I:%M %p')}"
                 elif response == "__DATE__":
-                    response = f"📅 Today is: {datetime.now().strftime('%B %d, %Y (%A)')}"
-
+                    response = f"📅 Today is: {datetime.now(WAT).strftime('%B %d, %Y (%A)')}"
+                stats["total_pattern_matches"] += 1
+                return response
+        else:
+            if pattern in message_lower or pattern in original_lower:
+                data = KNOWLEDGE_BASE[category]
+                response = random.choice(data["responses"])
+                if response == "__TIME__":
+                    response = f"⏰ The current time is: {datetime.now(WAT).strftime('%I:%M %p')}"
+                elif response == "__DATE__":
+                    response = f"📅 Today is: {datetime.now(WAT).strftime('%B %d, %Y (%A)')}"
                 stats["total_pattern_matches"] += 1
                 return response
 
@@ -623,9 +1082,9 @@ def get_smart_response(message, phone):
 
         # Handle dynamic responses
         if response == "__TIME__":
-            response = f"⏰ The current time is: {datetime.now().strftime('%I:%M %p')}"
+            response = f"⏰ The current time is: {datetime.now(WAT).strftime('%I:%M %p')}"
         elif response == "__DATE__":
-            response = f"📅 Today is: {datetime.now().strftime('%B %d, %Y (%A)')}"
+            response = f"📅 Today is: {datetime.now(WAT).strftime('%B %d, %Y (%A)')}"
 
         stats["total_fuzzy_matches"] += 1
         return response
@@ -694,7 +1153,7 @@ def whatsapp_webhook():
     incoming_msg = request.form.get('Body', '').strip()
     from_number = request.form.get('From', '')
 
-    timestamp = datetime.now().strftime("%H:%M:%S")
+    timestamp = datetime.now(WAT).strftime("%H:%M:%S")
     print(f"\n{'='*60}")
     print(f"📩 [{timestamp}] NEW MESSAGE")
     print(f"From: {from_number}")
@@ -750,7 +1209,7 @@ def whatsapp_webhook():
         return str(resp)
 
     if incoming_msg.lower() in ['/stats', 'stats']:
-        uptime = datetime.now() - stats["start_time"]
+        uptime = datetime.now(WAT) - stats["start_time"]
         uptime_mins = int(uptime.total_seconds() / 60)
         user_msg_count = len(conversations.get(from_number, []))
 
@@ -788,7 +1247,7 @@ def whatsapp_webhook():
 @app.route("/")
 def dashboard():
     """Web dashboard"""
-    uptime = datetime.now() - stats["start_time"]
+    uptime = datetime.now(WAT) - stats["start_time"]
     uptime_str = str(uptime).split('.')[0]
     recent_msgs = message_log[-10:][::-1]
 
@@ -997,7 +1456,7 @@ def health():
     return {
         "status": "healthy",
         "mode": AI_PROVIDER,
-        "uptime_seconds": int((datetime.now() - stats["start_time"]).total_seconds()),
+        "uptime_seconds": int((datetime.now(WAT) - stats["start_time"]).total_seconds()),
         "features": FEATURES,
         "stats": stats
     }
